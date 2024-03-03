@@ -1,0 +1,20 @@
+/*.pump-in-modal {
+    animation-name: pump-in-modal-keyframes!important;
+    animation-duration: 2s!important;  
+}
+
+.modal-fade-in {
+    animation-name: modal-fade-in-keyframes;
+    animation-duration:2s;  
+}
+
+@keyframes pump-in-modal-keyframes {
+    0%   {transform: translate(-50%, -500%) scale(0.5); opacity: 0;}
+    50%  {transform: translate(-50%, -200%) scale(1.1); opacity: 1;}
+    100% {transform: translate(-50%, -50%) scale(1); opacity: 1;}
+  }
+
+  @keyframes modal-fade-in-keyframes {
+    0%   {opacity: 0;}
+    100% {opacity: 1;}
+  }*/

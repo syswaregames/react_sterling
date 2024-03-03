@@ -1,0 +1,15 @@
+meta {
+  name: get all the courses
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://virtual-school.vercel.app/virtualschool/courses
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImlzaWRyby5zZXJAZ21haWwubmV0IiwiaWF0IjoxNzA5NDM1NDM3fQ.RwQ0s5zLt22uoZNlCdW0-4_yhaj2GIwhbZHza6LDrBQ
+}

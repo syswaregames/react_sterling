@@ -1,0 +1,19 @@
+meta {
+  name: login
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://virtual-school.vercel.app/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "password": "holi",
+    "email": "isidro.ser@gmail.net",
+    "userType": "Administrator"
+  }
+}

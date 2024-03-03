@@ -1,0 +1,20 @@
+meta {
+  name: register a user
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://virtual-school.vercel.app/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name":"Patrick",
+    "password":"SGVr9JfWTkL3huU",
+    "email":"suporte5@gmail.com",
+    "userType":"administrator"
+  }
+}
