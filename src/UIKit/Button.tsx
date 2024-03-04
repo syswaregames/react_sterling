@@ -6,17 +6,19 @@ export default function Button({
   disabled,
   onClick,
   icon,
+  loadingFromExternal,
   variant = "primary",
 }: {
   content: string;
   className?: string;
+  loadingFromExternal?: boolean;
   disabled?: boolean;
   variant?: "ghost" | "primary";
   onClick?: () => Promise<void> | void;
   icon?: React.ReactNode;
 }) {
   const [loading, setLoading] = useState(false);
-
+  const _loading = loading || loadingFromExternal;
   return (
     <button
       type="button"
@@ -25,8 +27,10 @@ export default function Button({
         className +
           " rounded-md font-bold text-base-100 p-2 disabled:opacity-40 disabled:pointer-events-none",
         {
-          "bg-primary text-primary-content hover:bg-primary-focus": variant==='primary',
-          "bg-black bg-opacity-0 hover:bg-black hover:bg-opacity-20 text-base-content opacity-70":  variant==='ghost',
+          "bg-primary text-primary-content hover:bg-primary-focus":
+            variant === "primary",
+          "bg-black bg-opacity-0 hover:bg-black hover:bg-opacity-20 text-base-content opacity-70":
+            variant === "ghost",
         }
       )}
       onClick={async () => {
@@ -37,7 +41,7 @@ export default function Button({
       }}
     >
       <div className="flex gap-2 justify-center">
-        {loading && (
+        {_loading && (
           <svg
             aria-hidden="true"
             className="inline w-[22px] h-[22px]  animate-spin text-[rgba(0,0,0,0.1)] fill-white"

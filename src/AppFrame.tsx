@@ -11,10 +11,11 @@ import {
 import { ReactComponent as LatitudeIcon } from "./Assets/Svg/LatitudeIcon.svg";
 import { ReactComponent as HomeIcon } from "./Assets/Svg/house-door-fill.svg";
 import { ReactComponent as RelatoryIcon } from "./Assets/Svg/file-ruled-fill.svg";
+import { EPinLogo } from "./Components/EPinLogo";
 
 export default function AppFrame() {
   const jwt = useSelector((x: RootState) => x.userReducer.jwt);
-  const userId = useSelector((x: RootState) => x.userReducer.userId);
+  const userId = useSelector((x: RootState) => x.userReducer.email);
   const permissions = useSelector(
     (x: RootState) => x.userReducer.programPermissions
   );
@@ -37,13 +38,13 @@ export default function AppFrame() {
         className="flex-shrink-0 w-[300px] items-stretch border-r text-left p-5 flex flex-col"
         style={{ backgroundColor: "rgb(251, 252, 254)" }}
       >
-        <LatitudeIcon height={48} width={200} className="mx-auto mb-5" />
+        <EPinLogo />
         <ul className="flex-grow">
           <Li label="Home" icon={HomeIcon} to="/" />
-          <Li label="Relatórios" icon={RelatoryIcon} to="/relatories" />
+          <Li label="Courses" icon={RelatoryIcon} to="/courses" />
         </ul>
         <div className="pt-5 border-t flex gap-2 flex-nowrap items-center">
-          <div className="bg-primary w-[32px] h-[32px] rounded-full text-center leading-7 font-bold text-white text-2xl">
+          <div className="bg-primary w-[32px] h-[32px] rounded-full text-center leading-8 font-bold text-white text-2xl">
             S
           </div>
           <div className="flex-grow">{userId}</div>

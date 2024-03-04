@@ -5,7 +5,12 @@ import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { ReactComponent as LatitudeIcon } from "../Assets/Svg/LatitudeIcon.svg";
 import { ReactComponent as LoginIcon } from "../Assets/Svg/box-arrow-in-right.svg";
-import { ILoginRequest, loginThunk } from "../Store/Slices/UserSlice";
+import {
+  ILoginRequest,
+  IRegisterRequest,
+  loginThunk,
+  registerThunk,
+} from "../Store/Slices/UserSlice";
 import { AppDispatch, RootState } from "../Store/Store";
 import Button from "../UIKit/Button";
 import FormControl from "../UIKit/FormControl";
@@ -14,6 +19,10 @@ import TextInput from "../UIKit/TextInput";
 import { EPinLogo } from "../Components/EPinLogo";
 
 const schema = yup.object().shape({
+  name: yup
+    .string()
+    .min(5, "Must contain at least 5 characters")
+    .required("Required"),
   email: yup
     .string()
     .min(5, "Must contain at least 5 characters")
@@ -23,42 +32,43 @@ const schema = yup.object().shape({
     .string()
     .min(4, "Must contain at least 5 characters")
     .required("Required"),
+  repeatPassword: yup
+    .string()
+    .min(4, "Must contain at least 5 characters")
+    .oneOf([yup.ref("password"), null as any], "Passwords do not match")
+    .required("Required"),
 });
 
-export function Login() {
+export function Register() {
   const dispatch: AppDispatch = useDispatch();
   const [validateOnChange, setValidateOnChange] = useState(false);
-  const formik = useFormik<ILoginRequest>({
+  const formik = useFormik<IRegisterRequest>({
     initialValues: {
+      name: "",
       email: "",
       password: "",
+      repeatPassword: "",
       userType: "Administrator",
     },
     enableReinitialize: true,
     validateOnBlur: validateOnChange,
     validateOnChange: validateOnChange,
     onSubmit: async (val) => {
-      await dispatch(
-        loginThunk({
-          email: val.email,
-          password: val.password,
-          userType: "Administrator",
-        })
-      );
+      await dispatch(registerThunk({ request: val, onSuccess: () => {
+        navigate("/registerSuccess");
+      } }));
     },
     validationSchema: schema,
   });
-  const [loading, setLoading] = useState(false);
 
-  const loginError = useSelector((x: RootState) => x.userReducer.loginError);
-  const jwt = useSelector((x: RootState) => x.userReducer.jwt);
+  const registerError = useSelector(
+    (x: RootState) => x.userReducer.registerError
+  );
+
   const navigate = useNavigate();
-  useEffect(() => {
-    if (jwt) {
-      navigate("/");
-    }
-  }, [jwt, navigate]);
+
   const errors = formik.submitCount > 0 ? formik.errors : {};
+
   return (
     <section
       className="bg-base-200 h-full flex flex-col 
@@ -68,37 +78,43 @@ export function Login() {
     >
       <form className="w-[400px] bg-base-100 rounded-lg p-8 shadow-md font-inter">
         <EPinLogo />
-        <h1 className="text-2xl font-bold mb-5">Sign in to your account</h1>
+        <h1 className="text-2xl font-bold mb-5">Register an account</h1>
         <div className="flex flex-col gap-4">
           <FormControl
-            label="Login"
+            label="Username"
+            input={<TextInput {...formik.getFieldProps("name")} />}
+            error={errors.name}
+          />
+          <FormControl
+            label="Email"
             input={<TextInput {...formik.getFieldProps("email")} />}
             error={errors.email}
           />
           <FormControl
             label="Password"
+            input={<PasswordInput {...formik.getFieldProps("password")} />}
+            error={errors.password}
+          />
+          <FormControl
+            label="Repeat password"
             input={
               <PasswordInput
-                {...formik.getFieldProps("password")}
+                {...formik.getFieldProps("repeatPassword")}
                 onKeyDown={async (e) => {
                   if (e.key === "Enter") {
                     setValidateOnChange(true);
-                    setLoading(true);
-                    await formik.submitForm();
-                    setLoading(false);
+                    formik.submitForm();
                   }
                 }}
               />
             }
-            error={errors.password}
+            error={errors.repeatPassword}
           />
-
           <div>
             <Button
-              content="Login"
+              content="Register"
               className="w-full"
               disabled={!formik.isValid}
-              loadingFromExternal={loading}
               icon={<LoginIcon width={22} height={22} />}
               onClick={async () => {
                 await formik.submitForm();
@@ -106,19 +122,18 @@ export function Login() {
               }}
             />
           </div>
-          <div className="h-4">
-            {!!loginError && (
+          <div className="">
+            {!!registerError && (
               <div className="text-error text-sm opacity-80">
-                * {loginError}
+                * {registerError}
               </div>
             )}
-          
           </div>
         </div>
         <div>
-          Don't have an account?{" "}
-          <Link to="/register" className="text-primary hover:underline">
-            register
+          Already have an account?{" "}
+          <Link to="/login" className="text-primary hover:underline">
+            login here
           </Link>
           .
         </div>

@@ -1,3 +1,3 @@
 window.config = { 
-    backendUrl : "http://localhost:5274" 
+    backendUrl : "https://virtual-school.vercel.app" 
 };

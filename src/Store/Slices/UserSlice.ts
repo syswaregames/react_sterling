@@ -1,32 +1,38 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export interface IUserState {
   jwt: string | undefined;
-  userId: string | undefined;
+  userId: number | undefined;
+  email?: string;
   programPermissions?: UserProgramPermissions[];
-  status:
-    | "idle"
-    | "pending"
-    | "success"
-    | "wrongPasswordOrLogin"
-    | "other"
-    | "connectionFail";
+  loginError?: EErrors;
+  registerError?: string;
+  pending: boolean;
+  registerSuccess?: boolean;
 }
 
+type EErrors =
+  | '"email" must be a valid email'
+  | "Unknown Error"
+  | "connectionFail"
+  | "wrongPasswordOrLogin";
 const initialState: IUserState = {
   jwt: localStorage.getItem("jwt")
     ? localStorage.getItem("jwt") ?? ""
     : undefined,
   userId: localStorage.getItem("userId")
-    ? localStorage.getItem("userId") ?? ""
+    ? parseInt(localStorage.getItem("userId")!)
     : undefined,
-  status: "idle",
+  pending: false,
+  email: localStorage.getItem("email")!,
 };
 
 function updateAxiosHeaders(state: IUserState) {
-  if(initialState.jwt) {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${initialState.jwt}`;
+  if (initialState.jwt) {
+    axios.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${initialState.jwt}`;
     axios.defaults.headers.common["UserId"] = initialState.userId;
   } else {
     delete axios.defaults.headers.common["Authorization"];
@@ -46,35 +52,60 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(loginThunk.pending, (state, action) => {
-      state.status = "pending";
+      state.pending = true;
+      state.loginError = undefined;
       axios.defaults.headers.common["Authorization"] = ``;
     });
     builder.addCase(loginThunk.fulfilled, (state, action) => {
-      state.status = action.payload.status as any;
-      if (action.payload.status === "success" && action.payload.jwt) {
-        state.jwt = action.payload.jwt;
-        state.userId = action.payload.userId;
-        state.programPermissions = action.payload.programPermissions;
+      state.pending = false;
+      if (!action.payload.error && action.payload.accessToken) {
+        state.jwt = action.payload.accessToken;
+        state.userId = action.payload.id;
+        state.email = action.payload.email;
+        //state.programPermissions = action.payload.programPermissions;
         updateAxiosHeaders(state);
-        localStorage.setItem("jwt", action.payload.jwt);
-        localStorage.setItem("userId", action.payload.userId);
+        localStorage.setItem("jwt", action.payload.accessToken);
+        localStorage.setItem("userId", action.payload.id!.toString());
+        localStorage.setItem("email", action.payload.email!.toString());
+      } else {
+        state.loginError = "Unknown Error";
       }
     });
     builder.addCase(loginThunk.rejected, (state) => {
-      state.status = "connectionFail";
+      state.pending = false;
+      state.loginError = "connectionFail";
     });
     builder.addCase(getProgramPermissionsThunk.fulfilled, (state, action) => {
-      state.programPermissions = action.payload;      
+      state.programPermissions = action.payload;
+    });
+    builder.addCase(registerThunk.pending, (state, action) => {
+      state.pending = true;
+      axios.defaults.headers.common["Authorization"] = ``;
+      state.registerError = undefined;
+    });
+    builder.addCase(registerThunk.fulfilled, (state, action) => {
+      state.pending = false;
+      if (action.payload.error) {
+        state.registerError = action.payload.error;
+        state.registerSuccess = false;
+      } else {
+        state.registerSuccess = true;
+      }
+    });
+    builder.addCase(registerThunk.rejected, (state) => {
+      state.pending = false;
+      state.loginError = "connectionFail";
     });
   },
 });
 export const { logout } = userSlice.actions;
 
 export interface IUserLoginResponse {
-  jwt: string;
-  userId: string;
-  status: string;
-  programPermissions?: UserProgramPermissions[];
+  id?: number;
+  email: string;
+  name: string;
+  accessToken: string;
+  error?: EErrors;
 }
 
 export interface UserProgramPermissions {
@@ -89,21 +120,72 @@ export interface UserProgramPermissions {
 }
 
 export interface ILoginRequest {
-  login: string;
   password: string;
+  email: string;
+  userType: "Administrator";
 }
 
 export const loginThunk = createAsyncThunk(
   "user/login",
   async (request: ILoginRequest) => {
-    var response = await axios.post<IUserLoginResponse>(
-      "/User/authenticate",
-      request
-    );
-    if (response.status < 500) {
+    try {
+      var response = await axios.post<IUserLoginResponse>("/login", request);
+
+      if (response.data.id === undefined)
+        return { ...response.data, error: "Unknown Error" };
+
       return response.data;
-    } else {
-      throw new Error("Status: " + response.status);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response!.status < 500) {
+        return axiosError.response!.data as IUserLoginResponse;
+      } else {
+        throw error;
+      }
+    }
+  }
+);
+
+export interface IRegisterRequest {
+  name: string;
+  password: string;
+  repeatPassword?: string;
+  email: string;
+  userType: "Administrator";
+}
+export interface IRegisterResponse {
+  id: number;
+  mail: string;
+  name: string;
+  user_type: "Administrator";
+  password: string;
+  error?: string;
+}
+
+export const registerThunk = createAsyncThunk(
+  "user/register",
+  async (props: {
+    request: IRegisterRequest;
+    onSuccess: () => void;
+  }) => {
+    try {
+      const request = { ...props.request };
+      delete request.repeatPassword;
+      var response = await axios.post<IRegisterResponse>("/register", request);
+
+      if (response.data.id === undefined)
+        return { ...response.data, error: "Unknown Error" };
+
+      props.onSuccess();
+      
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response!.status < 500) {
+        return axiosError.response!.data as IRegisterResponse;
+      } else {
+        throw error;
+      }
     }
   }
 );
