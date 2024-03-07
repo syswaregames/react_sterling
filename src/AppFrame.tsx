@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./Store/Store";
 import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Route, Routes, useNavigate } from "react-router-dom";
 import Button from "./UIKit/Button";
 import {
   getProgramPermissionsThunk,
@@ -12,6 +12,12 @@ import { ReactComponent as LatitudeIcon } from "./Assets/Svg/LatitudeIcon.svg";
 import { ReactComponent as HomeIcon } from "./Assets/Svg/house-door-fill.svg";
 import { ReactComponent as RelatoryIcon } from "./Assets/Svg/file-ruled-fill.svg";
 import { EPinLogo } from "./Components/EPinLogo";
+import MyCourses from "./Pages/MyCourses";
+import MyCourse from "./Pages/MyCourse";
+import Class_ from "./Pages/Class_";
+import ManageCourses from "./Pages/ManageCourses";
+import CreateCourse from "./Pages/CreateCourse";
+import EditCourse from "./Pages/EditCourse";
 
 export default function AppFrame() {
   const jwt = useSelector((x: RootState) => x.userReducer.jwt);
@@ -41,7 +47,8 @@ export default function AppFrame() {
         <EPinLogo />
         <ul className="flex-grow">
           <Li label="Home" icon={HomeIcon} to="/" />
-          <Li label="Courses" icon={RelatoryIcon} to="/courses" />
+          <Li label="My courses" icon={RelatoryIcon} to="/MyCourses" />
+          <Li label="Manage courses" icon={RelatoryIcon} to="/ManageCourses" />
         </ul>
         <div className="pt-5 border-t flex gap-2 flex-nowrap items-center">
           <div className="bg-primary w-[32px] h-[32px] rounded-full text-center leading-8 font-bold text-white text-2xl">
@@ -76,7 +83,17 @@ export default function AppFrame() {
           />
         </div>
       </aside>
-      <main className="flex-grow">app frame</main>
+      <main className="flex-grow overflow-auto text-left">
+        <Routes>
+          <Route path="/myCourses" element={<MyCourses />} />
+          <Route path="/myCourses/:id" element={<MyCourse />} />
+          <Route path="/myCourses/:id/class/:idClass" element={<Class_ />} />
+          <Route path="/manageCourses" element={<ManageCourses />} />
+          <Route path="/manageCourses/create" element={<CreateCourse />} />
+          <Route path="/manageCourses/edit/:id" element={<EditCourse />} />
+          <Route path="*" element={<div>Empty</div>} />
+        </Routes>
+      </main>
     </section>
   );
 }

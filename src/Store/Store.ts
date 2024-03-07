@@ -3,8 +3,9 @@ import {
   createAsyncThunk as createAsyncThunk_,
 } from "@reduxjs/toolkit";
 import userReducer from "./Slices/UserSlice";
+import coursesReducer from "./Slices/CoursesSlice";
 export const store = configureStore({
-  reducer: { userReducer },
+  reducer: { userReducer, coursesReducer },
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

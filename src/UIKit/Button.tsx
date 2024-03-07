@@ -8,6 +8,7 @@ export default function Button({
   icon,
   loadingFromExternal,
   variant = "primary",
+  
 }: {
   content: string;
   className?: string;

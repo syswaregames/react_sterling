@@ -3,11 +3,13 @@ export default function TextInput({
   setValue,
   onChange,
   name,
+  className,
   onBlur,
 }: {
   value: string;
   name?: string;
-  onBlur: (e: React.FocusEvent<HTMLInputElement, Element>) => void;
+  className?: string;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement, Element>) => void;
   setValue?: (val: string, e?: any) => void;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
@@ -23,7 +25,7 @@ export default function TextInput({
           setValue(e.target.value, e);
         }
       }}
-      className="px-2 bg-base-200 outline-primary rounded border h-10"
+      className={className+" px-2 bg-base-200 outline-primary rounded border h-10"}
       value={value}
     />
   );
