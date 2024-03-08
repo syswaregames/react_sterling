@@ -34,7 +34,7 @@ export default function EditCourse() {
           },
         ]}
       />
-      <PageTitle>Create course</PageTitle>
+      <PageTitle>Edit course</PageTitle>
       {myCourse && <CourseEditor initialValues={myCourse} />}
     </PageWrapper>
   );
@@ -135,7 +135,7 @@ export function CourseEditor({ initialValues }: { initialValues: ICourse }) {
                         formik.setValues(
                           produce(formik.values, (draft) => {
                             draft.classes.splice(
-                              draft.classes.findIndex((x) => x.id === x.id),
+                              i,
                               1
                             );
                           })

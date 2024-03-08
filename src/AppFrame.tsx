@@ -91,7 +91,7 @@ export default function AppFrame() {
           <Route path="/manageCourses" element={<ManageCourses />} />
           <Route path="/manageCourses/create" element={<CreateCourse />} />
           <Route path="/manageCourses/edit/:id" element={<EditCourse />} />
-          <Route path="*" element={<div>Empty</div>} />
+          <Route path="*" element={<div></div>} />
         </Routes>
       </main>
     </section>

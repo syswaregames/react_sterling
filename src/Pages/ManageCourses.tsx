@@ -1,18 +1,19 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ArticleLink from "../Components/ArticleLink";
 import Breadcrumbs from "../Components/Breadcrumbs";
 import PageTitle from "../Components/PageTitle";
 import PageWrapper from "../Components/PageWrapper";
-import { RootState } from "@/Store/Store";
+import { AppDispatch, RootState } from "@/Store/Store";
 import Button from "@/UIKit/Button";
 import { useNavigate } from "react-router-dom";
+import { deleteCourse } from "@/Store/Slices/CoursesSlice";
 
 export default function ManageCourses() {
   const myCourses = useSelector(
     (root: RootState) => root.coursesReducer.myCourses
   );
   const navigate = useNavigate();
-
+  const dispatch: AppDispatch = useDispatch();
   const index = (
     <PageWrapper>
       <Breadcrumbs
@@ -39,7 +40,7 @@ export default function ManageCourses() {
               <Button
                 content="Delete"
                 onClick={() => {
-                  navigate("/ManageCourses/Create");
+                  dispatch(deleteCourse({ courseId: course.id }));
                 }}
               />
             </div>
