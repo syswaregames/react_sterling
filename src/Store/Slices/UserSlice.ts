@@ -68,7 +68,7 @@ export const userSlice = createSlice({
         localStorage.setItem("userId", action.payload.id!.toString());
         localStorage.setItem("email", action.payload.email!.toString());
       } else {
-        state.loginError = "Unknown Error";
+        state.loginError = action.payload.error;
       }
     });
     builder.addCase(loginThunk.rejected, (state) => {
@@ -122,7 +122,7 @@ export interface UserProgramPermissions {
 export interface ILoginRequest {
   password: string;
   email: string;
-  userType: "Administrator";
+  userType: 1 | 2 | 3;
 }
 
 export const loginThunk = createAsyncThunk(
@@ -132,7 +132,7 @@ export const loginThunk = createAsyncThunk(
       var response = await axios.post<IUserLoginResponse>("/login", request);
 
       if (response.data.id === undefined)
-        return { ...response.data, error: "Unknown Error" };
+        return { ...response.data, error: response.data.error };
 
       return response.data;
     } catch (error) {
@@ -164,10 +164,7 @@ export interface IRegisterResponse {
 
 export const registerThunk = createAsyncThunk(
   "user/register",
-  async (props: {
-    request: IRegisterRequest;
-    onSuccess: () => void;
-  }) => {
+  async (props: { request: IRegisterRequest; onSuccess: () => void }) => {
     try {
       const request = { ...props.request };
       delete request.repeatPassword;
@@ -177,7 +174,7 @@ export const registerThunk = createAsyncThunk(
         return { ...response.data, error: "Unknown Error" };
 
       props.onSuccess();
-      
+
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;

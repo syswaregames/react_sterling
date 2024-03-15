@@ -32,7 +32,7 @@ export function Login() {
     initialValues: {
       email: "",
       password: "",
-      userType: "Administrator",
+      userType: 1,
     },
     enableReinitialize: true,
     validateOnBlur: validateOnChange,
@@ -42,7 +42,7 @@ export function Login() {
         loginThunk({
           email: val.email,
           password: val.password,
-          userType: "Administrator",
+          userType: val.userType,
         })
       );
     },
@@ -106,7 +106,7 @@ export function Login() {
               }}
             />
           </div>
-          <div className="h-4">
+          <div className="min-h-4">
             {!!loginError && (
               <div className="text-error text-sm opacity-80">
                 * {loginError}
