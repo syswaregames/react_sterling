@@ -65,8 +65,10 @@ export const userSlice = createSlice({
         //state.programPermissions = action.payload.programPermissions;
         updateAxiosHeaders(state);
         localStorage.setItem("jwt", action.payload.accessToken);
-        localStorage.setItem("userId", action.payload.id!.toString());
-        localStorage.setItem("email", action.payload.email!.toString());
+        if (action.payload.id)
+          localStorage.setItem("userId", action.payload.id.toString());
+        if (action.payload.email)
+          localStorage.setItem("email", action.payload.email.toString());
       } else {
         state.loginError = action.payload.error;
       }
@@ -132,7 +134,7 @@ export const loginThunk = createAsyncThunk(
       var response = await axios.post<IUserLoginResponse>("/login", request);
 
       if (response.data.id === undefined)
-        return { ...response.data, error: response.data.error };
+        return { ...response.data, email: request.email, error: response.data.error };
 
       return response.data;
     } catch (error) {
